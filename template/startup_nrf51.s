@@ -157,7 +157,7 @@ Reset_Handler:
 .flash_to_ram_loop_end:
     ldr    r0, =SystemInit
     blx    r0
-    ldr    r0, =_start
+    ldr    r0, =main
     bx     r0
     .pool
     .size Reset_Handler, . - Reset_Handler
