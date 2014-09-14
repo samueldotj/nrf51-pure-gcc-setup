@@ -22,7 +22,13 @@ clean:
 	rm -f JLink.log
 	rm -f .gdbinit
 
-flash: all flash.jlink
+ifdef PROJECT_BOOTLOADER
+  BFLASH = flash-uicr
+else
+  BFLASH =
+endif
+
+flash: all $(BFLASH) flash.jlink
 	$(JLINK) flash.jlink
 
 flash.jlink:
@@ -39,6 +45,12 @@ endif
 flash-softdevice.jlink:
 	# Write to NVMC to enable write. Write mainpart, write UICR. Assumes device is erased.
 	printf "w4 4001e504 1\nloadbin \"$(SOFTDEVICE_OUTPUT:.hex=.bin)\" 0\nr\ng\nexit\n" > flash-softdevice.jlink
+
+flash-uicr.jlink:
+	printf "w4 4001e504 1\nloadbin \"$(UICR_BIN)\" 0x10001014\nr\ng\nexit\n" > $@
+
+flash-uicr: flash-uicr.jlink
+	$(JLINK) $^
 
 recover: recover.jlink erase-all.jlink pin-reset.jlink
 	$(JLINK) recover.jlink

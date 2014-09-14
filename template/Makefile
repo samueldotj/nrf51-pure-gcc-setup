@@ -56,7 +56,11 @@ else
     USE_SOFTDEVICE = blank
 endif
 
-LINKER_SCRIPT ?= gcc_nrf51_$(USE_SOFTDEVICE).ld
+ifdef PROJECT_BOOTLOADER
+    LINKER_SCRIPT ?= gcc_nrf51_$(USE_SOFTDEVICE).ld
+else
+    LINKER_SCRIPT ?= gcc_nrf51_$(USE_SOFTDEVICE)_bootloader.ld
+endif
 OUTPUT_NAME ?= $(addsuffix _$(USE_SOFTDEVICE), $(PROJECT_NAME))
 
 ifdef USE_EXT_SENSORS
@@ -74,10 +78,13 @@ OUTPUT_PATH = _build/
 CPUFLAGS = -mthumb -mcpu=cortex-m0 -march=armv6-m
 CFLAGS += -std=gnu99 -c $(CPUFLAGS) -Wall -D$(DEVICE) -D$(BOARD) $(CMSIS_INCLUDE) $(LIBRARY_INCLUDES) -MD
 LDFLAGS += $(CPUFLAGS) -L $(TEMPLATE_PATH) -T $(LINKER_SCRIPT) -Wl,-Map=$(OUTPUT_PATH)$(OUTPUT_NAME).Map
+OBJ_OPT_UIRC = --only-section .bootloader_addr
+OBJ_OPT_BIN  = --remove-section .bootloader_addr
 
 HEX = $(OUTPUT_PATH)$(OUTPUT_NAME).hex
 ELF = $(OUTPUT_PATH)$(OUTPUT_NAME).elf
 BIN = $(OUTPUT_PATH)$(OUTPUT_NAME).bin
+UICR_BIN = $(OUTPUT_PATH)$(OUTPUT_NAME)-uirc.bin
 
 SRCS = $(SYSTEM_FILE) $(notdir $(APPLICATION_SRCS))
 OBJS = $(addprefix $(OUTPUT_PATH), $(SRCS:.c=.o)) $(addprefix $(OUTPUT_PATH),$(APPLICATION_LIBS))
@@ -100,7 +107,12 @@ endif
 $(HEX): $(OBJS) $(OBJS_AS)
 	$(LD) $(LDFLAGS) $(OBJS_AS) $(OBJS) -o $(ELF)
 	$(OBJCOPY) -Oihex $(ELF) $(HEX)
+ifdef PROJECT_BOOTLOADER
+	$(OBJCOPY) -Obinary $(OBJ_OPT_BIN) $(ELF) $(BIN)
+	$(OBJCOPY) -Obinary $(OBJ_OPT_UIRC) $(ELF) $(UICR_BIN)
+else
 	$(OBJCOPY) -Obinary $(ELF) $(BIN)
+endif
 	$(SIZE) $(ELF)
 
 size: $(ELF)
