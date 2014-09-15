@@ -23,9 +23,9 @@ clean:
 	rm -f .gdbinit
 
 ifdef PROJECT_BOOTLOADER
-  BFLASH = flash-uicr
+  BFLASH = enable-bootloader
 else
-  BFLASH =
+  BFLASH = disable-bootloader
 endif
 
 flash: all $(BFLASH) flash.jlink
@@ -46,11 +46,14 @@ flash-softdevice.jlink:
 	# Write to NVMC to enable write. Write mainpart, write UICR. Assumes device is erased.
 	printf "w4 4001e504 1\nloadbin \"$(SOFTDEVICE_OUTPUT:.hex=.bin)\" 0\nr\ng\nexit\n" > flash-softdevice.jlink
 
+
 flash-uicr.jlink:
 	printf "w4 4001e504 1\nloadbin \"$(UICR_BIN)\" 0x10001014\nr\ng\nexit\n" > $@
 
-flash-uicr: flash-uicr.jlink
+enable-bootloader: flash-uicr.jlink
 	$(JLINK) $^
+
+disable-bootloader: erase-all flash-softdevice
 
 recover: recover.jlink erase-all.jlink pin-reset.jlink
 	$(JLINK) recover.jlink

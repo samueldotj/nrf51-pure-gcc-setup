@@ -1,5 +1,4 @@
 /* Library configurations */
-GROUP(libgcc.a libc.a libm.a libnosys.a)
 
 /* Linker script to place sections and symbol values. Should be used together
  * with other linker script that defines memory regions FLASH and RAM.
@@ -70,18 +69,12 @@ SECTIONS
     } > FLASH
     __exidx_end = .;
 
-    .bootloader_settings 0x0003FC00 :
+    .bootloader_settings :
     {
         KEEP(*(.bootloader_settings))
     } > FLASH
 
     __etext = .;
-
-    .bootloader_addr 0x10001014 : 
-    {
-        KEEP(*(.bootloader_addr))
-    } > UICR
-
 
     .data : AT (__etext)
     {
@@ -139,6 +132,12 @@ SECTIONS
     {
         *(.stack)
     } > RAM
+
+
+    .bootloader_addr 0x10001014 :
+    {
+        KEEP(*(.bootloader_addr))
+    } > UICR
 
     /* Set stack top to end of RAM, and stack limit move down by
      * size of stack_dummy section */
