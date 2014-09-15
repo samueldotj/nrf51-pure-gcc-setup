@@ -57,9 +57,9 @@ else
 endif
 
 ifdef PROJECT_BOOTLOADER
-    LINKER_SCRIPT ?= gcc_nrf51_$(USE_SOFTDEVICE).ld
-else
     LINKER_SCRIPT ?= gcc_nrf51_$(USE_SOFTDEVICE)_bootloader.ld
+else
+    LINKER_SCRIPT ?= gcc_nrf51_$(USE_SOFTDEVICE).ld
 endif
 OUTPUT_NAME ?= $(addsuffix _$(USE_SOFTDEVICE), $(PROJECT_NAME))
 
