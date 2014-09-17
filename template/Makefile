@@ -75,11 +75,11 @@ VPATH = $(SOURCE_PATHS)
 
 OUTPUT_PATH = _build/
 
-CPUFLAGS = -mthumb -mcpu=cortex-m0 -march=armv6-m
-CFLAGS += -std=gnu99 -c $(CPUFLAGS) -Wall -D$(DEVICE) -D$(BOARD) $(CMSIS_INCLUDE) $(LIBRARY_INCLUDES) -MD
+CPUFLAGS = -mcpu=cortex-m0 -mthumb -mabi=aapcs
+CFLAGS += -std=gnu99 -c $(CPUFLAGS) -Wall -D$(DEVICE) -D$(BOARD) $(CMSIS_INCLUDE) $(LIBRARY_INCLUDES) -MD -mfloat-abi=soft
 LDFLAGS += $(CPUFLAGS) -L $(TEMPLATE_PATH) -T $(LINKER_SCRIPT) -Wl,-Map=$(OUTPUT_PATH)$(OUTPUT_NAME).Map
-OBJ_OPT_UIRC = --only-section .bootloader_addr
-OBJ_OPT_BIN  = --remove-section .bootloader_addr
+OBJ_OPT_UIRC = --only-section .uicrBootStartAddress
+OBJ_OPT_BIN  = --remove-section .uicrBootStartAddress
 
 HEX = $(OUTPUT_PATH)$(OUTPUT_NAME).hex
 ELF = $(OUTPUT_PATH)$(OUTPUT_NAME).elf

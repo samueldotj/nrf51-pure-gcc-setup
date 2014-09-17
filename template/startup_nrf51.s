@@ -127,12 +127,21 @@ __Vectors:
     .type    Reset_Handler, %function
 Reset_Handler:
     .equ   NRF_POWER_RAMON_ADDRESS,            0x40000524
+    .equ   NRF_POWER_RAMONB_ADDRESS,           0x40000554
     .equ   NRF_POWER_RAMON_RAM1ON_ONMODE_Msk,  0x3
+
+    movs   r1, #NRF_POWER_RAMON_RAM1ON_ONMODE_Msk
+
     ldr    r0, =NRF_POWER_RAMON_ADDRESS
     ldr    r2, [r0]
-    movs   r1, #NRF_POWER_RAMON_RAM1ON_ONMODE_Msk
-    orrs   r2, r1
+    orrs   r2, r2, r1
     str    r2, [r0]
+
+    ldr    r0, =NRF_POWER_RAMONB_ADDRESS
+    ldr    r2, [r0]
+    orrs   r2, r2, r1
+    str    r2, [r0]
+
 
 /*     Loop to copy data from read only memory to RAM. The ranges
  *      of copy from/to are specified by following symbols evaluated in
