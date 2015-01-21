@@ -50,11 +50,6 @@ flash-softdevice.jlink:
 flash-uicr.jlink:
 	printf "w4 4001e504 1\nloadbin \"$(UICR_BIN)\" 0x10001014\nr\ng\nexit\n" > $@
 
-enable-bootloader: flash-uicr.jlink
-	$(JLINK) $^
-
-disable-bootloader: erase-all flash-softdevice
-
 recover: recover.jlink erase-all.jlink pin-reset.jlink
 	$(JLINK) recover.jlink
 	$(JLINK) erase-all.jlink
@@ -81,6 +76,11 @@ erase-all: erase-all.jlink
 erase-all.jlink:
 	# Write to NVMC to enable erase, do erase all, wait for completion. reset
 	printf "w4 4001e504 2\nw4 4001e50c 1\nsleep 100\nr\nexit\n" > erase-all.jlink
+
+enable-bootloader: erase-all flash-softdevice flash-uicr.jlink
+	$(JLINK) flash-uicr.jlink
+
+disable-bootloader: erase-all flash-softdevice
 
 startdebug: debug-gdbinit
 	$(TERMINAL) "$(JLINKGDBSERVER) -port $(GDB_PORT_NUMBER)"
